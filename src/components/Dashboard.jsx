@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { getAIResponse } from "../services/aiService";
 import { db } from "../config/db.js";
+import WorkoutTodo from "./WorkoutTodo";
 
 export const Dashboard = ({ isNew, setIsNew }) => {
   const [durationOfWorkout, setDurationOfWorkout] = useState(30);
@@ -10,6 +11,29 @@ export const Dashboard = ({ isNew, setIsNew }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [profile, setProfile] = useState(null);
+  const [history, setHistory] = useState([]);
+  const [expandedHistoryIds, setExpandedHistoryIds] = useState(new Set());
+
+  const toggleHistoryExpand = (id) => {
+    setExpandedHistoryIds((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(id)) {
+        newSet.delete(id);
+      } else {
+        newSet.add(id);
+      }
+      return newSet;
+    });
+  };
+
+  const fetchHistory = async () => {
+    try {
+      const pastWorkouts = await db.history.orderBy("id").reverse().limit(10).toArray();
+      setHistory(pastWorkouts);
+    } catch (e) {
+      console.error("Failed to fetch history:", e);
+    }
+  };
 
   useEffect(() => {
     async function fetchProfile() {
@@ -20,7 +44,27 @@ export const Dashboard = ({ isNew, setIsNew }) => {
       }
     }
     fetchProfile();
+    fetchHistory();
   }, []);
+
+  const handleFinishWorkout = async (ratedWorkout, review) => {
+    try {
+      await db.history.add({
+        date: new Date().toISOString(),
+        completed: true,
+        workoutTitle: "Custom Workout",
+        duration: durationOfWorkout,
+        workoutType: workoutType,
+        focusArea: focusArea,
+        exercises: ratedWorkout,
+        review: review
+      });
+      setAIResponse(null);
+      fetchHistory();
+    } catch (e) {
+      console.error("Failed to save workout to history:", e);
+    }
+  };
 
   async function generateWorkoutPlan(e) {
     e.preventDefault();
@@ -29,11 +73,14 @@ export const Dashboard = ({ isNew, setIsNew }) => {
     setError(null);
 
     try {
+      console.time("response");
       const response = await getAIResponse({
         durationOfWorkout,
         workoutType,
         focusArea,
       });
+      console.timeEnd("response");
+
       setAIResponse(response);
     } catch (error) {
       setError(error.message);
@@ -58,45 +105,6 @@ export const Dashboard = ({ isNew, setIsNew }) => {
       <main className="dashboard-main">
         {/* Sidebar */}
         <aside className="dashboard-sidebar">
-          {profile && (
-            <div className="glass-card profile-summary-card">
-              <div className="profile-summary-header">
-                <h3>{profile.name}'s Profile</h3>
-              </div>
-              <div className="profile-detail-row">
-                <span className="profile-detail-label">Age</span>
-                <span className="profile-detail-value">{profile.age} yrs</span>
-              </div>
-              <div className="profile-detail-row">
-                <span className="profile-detail-label">Weight</span>
-                <span className="profile-detail-value">{profile.weight} kg</span>
-              </div>
-              <div className="profile-detail-row">
-                <span className="profile-detail-label">Height</span>
-                <span className="profile-detail-value">{profile.height} cm</span>
-              </div>
-              <div className="profile-detail-row">
-                <span className="profile-detail-label">Level</span>
-                <span className="profile-detail-value">{profile.fitnessLevel}</span>
-              </div>
-              <div className="profile-detail-row">
-                <span className="profile-detail-label">Goal</span>
-                <span className="profile-detail-value">
-                  {profile.goal === "loseWeight"
-                    ? "Lose Weight"
-                    : profile.goal === "gainWeight"
-                    ? "Gain Weight"
-                    : "Maintain Weight"}
-                </span>
-              </div>
-              {profile.injuries && (
-                <div className="profile-detail-row" style={{ flexDirection: "column", marginTop: "0.5rem" }}>
-                  <span className="profile-detail-label" style={{ marginBottom: "0.25rem" }}>Injuries / Limitations</span>
-                  <span className="profile-detail-value" style={{ color: "var(--error)" }}>{profile.injuries}</span>
-                </div>
-              )}
-            </div>
-          )}
 
           <div className="glass-card generator-card">
             <h3>Generate Workout</h3>
@@ -177,93 +185,90 @@ export const Dashboard = ({ isNew, setIsNew }) => {
           )}
 
           {!loading && !aiResponse && (
-            <div className="empty-plan-state">
-              <div className="empty-plan-icon">💪</div>
-              <h3>Ready to train?</h3>
-              <p>Fill out the workout parameters on the left and click "Generate Plan" to get your customized routine.</p>
-            </div>
+            <>
+              <div className="empty-plan-state">
+                <div className="empty-plan-icon">💪</div>
+                <h3>Ready to train?</h3>
+                <p>Fill out the workout parameters on the left and click "Generate Plan" to get your customized routine.</p>
+              </div>
+
+              {history.length > 0 && (
+                <div className="history-section">
+                  <h3 className="history-title">Recent Workouts</h3>
+                  <div className="history-card-list">
+                    {history.map((log) => {
+                      const isExpanded = expandedHistoryIds.has(log.id);
+
+                      return (
+                        <div key={log.id} className="glass-card history-item-card">
+                          <div 
+                            className="history-header" 
+                            onClick={() => toggleHistoryExpand(log.id)}
+                            style={{ cursor: "pointer", userSelect: "none" }}
+                          >
+                            <span className="history-date">
+                              📅 {new Date(log.date).toLocaleDateString(undefined, {
+                                weekday: 'short',
+                                year: 'numeric',
+                                month: 'short',
+                                day: 'numeric',
+                                hour: '2-digit',
+                                minute: '2-digit'
+                              })}
+                            </span>
+                            <div className="history-summary" style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+                              <span className="plan-tag tag-duration">⏱️ {log.duration} mins</span>
+                              <span className="plan-tag tag-difficulty" style={{ textTransform: 'capitalize' }}>🔥 {log.workoutType}</span>
+                              {log.focusArea && (
+                                <span className="plan-tag" style={{ background: "rgba(255,255,255,0.05)", color: "var(--text-h)", border: "1px solid var(--border)" }}>
+                                  🎯 {log.focusArea}
+                                </span>
+                              )}
+                              <span className="history-expand-indicator" style={{ color: "var(--accent)", fontWeight: "bold", marginLeft: "0.5rem" }}>
+                                {isExpanded ? "▲" : "▼"}
+                              </span>
+                            </div>
+                          </div>
+
+                          {isExpanded && (
+                            <>
+                              <div className="history-exercises">
+                                {log.exercises.map((ex, idx) => (
+                                  <div key={idx} className="history-exercise-row">
+                                    <span className="history-exercise-name">
+                                      {ex.name} ({ex.sets}x{ex.reps})
+                                    </span>
+                                    {ex.feedback && (
+                                      <span className={`history-exercise-feedback feedback-${ex.feedback}`}>
+                                        {ex.feedback === "good" ? "😊 Good" : ex.feedback === "average" ? "😐 Medium" : "🥵 Hard"}
+                                      </span>
+                                    )}
+                                  </div>
+                                ))}
+                              </div>
+
+                              {log.review && (
+                                <div className="history-review-box">
+                                  <strong>Note:</strong> "{log.review}"
+                                </div>
+                              )}
+                            </>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+            </>
           )}
 
           {!loading && aiResponse && (
-            <div className="workout-plan-container">
-              <div className="glass-card plan-header-card">
-                <h2>{aiResponse.title || "Your Custom Workout"}</h2>
-                <div className="plan-meta-row">
-                  <div className="plan-tag tag-duration">
-                    ⏱️ {aiResponse.estimatedDuration || durationOfWorkout} Mins
-                  </div>
-                  <div className="plan-tag tag-difficulty">
-                    🔥 {aiResponse.difficulty || "All Levels"}
-                  </div>
-                  <div className="plan-tag" style={{ background: "rgba(255,255,255,0.05)", color: "var(--text-h)", border: "1px solid var(--border)" }}>
-                    🎯 Focus: {focusArea || "General"}
-                  </div>
-                </div>
-              </div>
-
-              <div className="plan-sections-grid">
-                {aiResponse.warmup && aiResponse.warmup.length > 0 && (
-                  <div className="glass-card plan-column-card">
-                    <h3 className="column-title">Warm-up</h3>
-                    <ul className="warmup-list">
-                      {aiResponse.warmup.map((exercise, idx) => (
-                        <li key={idx} className="warmup-item">
-                          {exercise}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-
-                {aiResponse.exercises && aiResponse.exercises.length > 0 && (
-                  <div className="glass-card plan-column-card">
-                    <h3 className="column-title">Main Exercises</h3>
-                    <div className="exercises-grid">
-                      {aiResponse.exercises.map((ex, idx) => (
-                        <div key={idx} className="exercise-card">
-                          <div className="exercise-title">{ex.name}</div>
-                          <div className="exercise-stats">
-                            <div className="stat-item">
-                              <span className="stat-label">Sets</span>
-                              <span className="stat-val">{ex.sets || "—"}</span>
-                            </div>
-                            <div className="stat-item">
-                              <span className="stat-label">Reps</span>
-                              <span className="stat-val">{ex.reps || "—"}</span>
-                            </div>
-                            <div className="stat-item">
-                              <span className="stat-label">Rest</span>
-                              <span className="stat-val">{ex.restSeconds ? `${ex.restSeconds}s` : "—"}</span>
-                            </div>
-                          </div>
-                          {ex.notes && <div className="exercise-notes">{ex.notes}</div>}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {aiResponse.cooldown && aiResponse.cooldown.length > 0 && (
-                  <div className="glass-card plan-column-card">
-                    <h3 className="column-title">Cool-down</h3>
-                    <ul className="cooldown-list">
-                      {aiResponse.cooldown.map((exercise, idx) => (
-                        <li key={idx} className="cooldown-item">
-                          {exercise}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-
-                {aiResponse.coachNotes && (
-                  <div className="glass-card coach-notes-card">
-                    <h3 className="coach-notes-title">⚡ Coach's Advice</h3>
-                    <div className="coach-notes-text">{aiResponse.coachNotes}</div>
-                  </div>
-                )}
-              </div>
-            </div>
+            <WorkoutTodo
+              workout={aiResponse}
+              onFinish={handleFinishWorkout}
+              onCancel={() => setAIResponse(null)}
+            />
           )}
         </section>
       </main>
