@@ -12,10 +12,11 @@ export const Dashboard = ({ isNew, setIsNew }) => {
   const [error, setError] = useState(null);
   const [profile, setProfile] = useState(null);
   const [history, setHistory] = useState([]);
-  const [expandedHistoryIds, setExpandedHistoryIds] = useState(new Set());
+  const [expandedHistoryWorkoutIds, setExpandedHistoryWorkoutIds] = useState(new Set());
+  const [showHistorySection, setShowHistorySection] = useState(false);
 
   const toggleHistoryExpand = (id) => {
-    setExpandedHistoryIds((prev) => {
+    setExpandedHistoryWorkoutIds((prev) => {
       const newSet = new Set(prev);
       if (newSet.has(id)) {
         newSet.delete(id);
