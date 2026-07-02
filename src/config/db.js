@@ -9,7 +9,7 @@ if (isBrowser) {
   db = new Dexie("FitGPT");
   db.version(1).stores({
     profile: "++id, date",
-    history: "++id, date, completed",
+    history: "++id, date",
   });
 } else {
   // Mock database for testing in Node.js
