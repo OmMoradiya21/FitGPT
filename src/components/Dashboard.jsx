@@ -195,70 +195,90 @@ export const Dashboard = ({ isNew, setIsNew }) => {
 
               {history.length > 0 && (
                 <div className="history-section">
-                  <h3 className="history-title">Recent Workouts</h3>
-                  <div className="history-card-list">
-                    {history.map((log) => {
-                      const isExpanded = expandedHistoryIds.has(log.id);
-
-                      return (
-                        <div key={log.id} className="glass-card history-item-card">
-                          <div 
-                            className="history-header" 
-                            onClick={() => toggleHistoryExpand(log.id)}
-                            style={{ cursor: "pointer", userSelect: "none" }}
-                          >
-                            <span className="history-date">
-                              📅 {new Date(log.date).toLocaleDateString(undefined, {
-                                weekday: 'short',
-                                year: 'numeric',
-                                month: 'short',
-                                day: 'numeric',
-                                hour: '2-digit',
-                                minute: '2-digit'
-                              })}
-                            </span>
-                            <div className="history-summary" style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
-                              <span className="plan-tag tag-duration">⏱️ {log.duration} mins</span>
-                              <span className="plan-tag tag-difficulty" style={{ textTransform: 'capitalize' }}>🔥 {log.workoutType}</span>
-                              {log.focusArea && (
-                                <span className="plan-tag" style={{ background: "rgba(255,255,255,0.05)", color: "var(--text-h)", border: "1px solid var(--border)" }}>
-                                  🎯 {log.focusArea}
-                                </span>
-                              )}
-                              <span className="history-expand-indicator" style={{ color: "var(--accent)", fontWeight: "bold", marginLeft: "0.5rem" }}>
-                                {isExpanded ? "▲" : "▼"}
-                              </span>
-                            </div>
-                          </div>
-
-                          {isExpanded && (
-                            <>
-                              <div className="history-exercises">
-                                {log.exercises.map((ex, idx) => (
-                                  <div key={idx} className="history-exercise-row">
-                                    <span className="history-exercise-name">
-                                      {ex.name} ({ex.sets}x{ex.reps})
-                                    </span>
-                                    {ex.feedback && (
-                                      <span className={`history-exercise-feedback feedback-${ex.feedback}`}>
-                                        {ex.feedback === "good" ? "😊 Good" : ex.feedback === "average" ? "😐 Medium" : "🥵 Hard"}
-                                      </span>
-                                    )}
-                                  </div>
-                                ))}
-                              </div>
-
-                              {log.review && (
-                                <div className="history-review-box">
-                                  <strong>Note:</strong> "{log.review}"
-                                </div>
-                              )}
-                            </>
-                          )}
-                        </div>
-                      );
-                    })}
+                  <div 
+                    className="history-section-header" 
+                    onClick={() => setShowHistorySection(!showHistorySection)}
+                    style={{ 
+                      cursor: "pointer", 
+                      display: "flex", 
+                      alignItems: "center", 
+                      justifyContent: "space-between", 
+                      userSelect: "none",
+                      borderBottom: "1px solid var(--border)",
+                      paddingBottom: "0.5rem"
+                    }}
+                  >
+                    <h3 className="history-title" style={{ margin: 0 }}>Recent Workouts</h3>
+                    <span className="history-section-toggle" style={{ color: "var(--accent)", fontWeight: "bold", fontSize: "0.9rem" }}>
+                      {showHistorySection ? "Hide History ▲" : "Show History ▼"}
+                    </span>
                   </div>
+
+                  {showHistorySection && (
+                    <div className="history-card-list" style={{ marginTop: "1rem" }}>
+                      {history.map((log) => {
+                        const isExpanded = expandedHistoryWorkoutIds.has(log.id);
+
+                        return (
+                          <div key={log.id} className="glass-card history-item-card">
+                            <div 
+                              className="history-header" 
+                              onClick={() => toggleHistoryExpand(log.id)}
+                              style={{ cursor: "pointer", userSelect: "none" }}
+                            >
+                              <span className="history-date">
+                                📅 {new Date(log.date).toLocaleDateString(undefined, {
+                                  weekday: 'short',
+                                  year: 'numeric',
+                                  month: 'short',
+                                  day: 'numeric',
+                                  hour: '2-digit',
+                                  minute: '2-digit'
+                                })}
+                              </span>
+                              <div className="history-summary" style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+                                <span className="plan-tag tag-duration">⏱️ {log.duration} mins</span>
+                                <span className="plan-tag tag-difficulty" style={{ textTransform: 'capitalize' }}>🔥 {log.workoutType}</span>
+                                {log.focusArea && (
+                                  <span className="plan-tag" style={{ background: "rgba(255,255,255,0.05)", color: "var(--text-h)", border: "1px solid var(--border)" }}>
+                                    🎯 {log.focusArea}
+                                  </span>
+                                )}
+                                <span className="history-expand-indicator" style={{ color: "var(--accent)", fontWeight: "bold", marginLeft: "0.5rem" }}>
+                                  {isExpanded ? "▲" : "▼"}
+                                </span>
+                              </div>
+                            </div>
+
+                            {isExpanded && (
+                              <>
+                                <div className="history-exercises">
+                                  {log.exercises.map((ex, idx) => (
+                                    <div key={idx} className="history-exercise-row">
+                                      <span className="history-exercise-name">
+                                        {ex.name} ({ex.sets}x{ex.reps})
+                                      </span>
+                                      {ex.feedback && (
+                                        <span className={`history-exercise-feedback feedback-${ex.feedback}`}>
+                                          {ex.feedback === "good" ? "😊 Good" : ex.feedback === "average" ? "😐 Medium" : "🥵 Hard"}
+                                        </span>
+                                      )}
+                                    </div>
+                                  ))}
+                                </div>
+
+                                {log.review && (
+                                  <div className="history-review-box">
+                                    <strong>Note:</strong> "{log.review}"
+                                  </div>
+                                )}
+                              </>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
                 </div>
               )}
             </>
