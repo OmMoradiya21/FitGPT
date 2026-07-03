@@ -80,7 +80,7 @@ while providing output ensures:
     const genAI = new GoogleGenerativeAI(APIKey);
 
     const model = genAI.getGenerativeModel({
-      model: "gemini-2.5-flash",
+      model: import.meta.env.VITE_GEMINI_MODEL,
 
       generationConfig: {
         responseMimeType: "application/json",

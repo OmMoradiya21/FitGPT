@@ -18,7 +18,7 @@ const CheckAPIButton = ({ APIKey, children }) => {
 
         try {
             const genAI = new GoogleGenerativeAI(APIKey);
-            const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+            const model = genAI.getGenerativeModel({ model: import.meta.env.VITE_GEMINI_MODEL });
             const result = await model.generateContent("hi");
 
             console.log(result.response.text());
