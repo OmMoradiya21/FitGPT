@@ -46,7 +46,7 @@ const CheckAPIButton = ({ APIKey, children }) => {
                 <button 
                     type="button" 
                     className="btn-api-check"
-                    disabled={isValid || isLoading} 
+                    disabled={isLoading} 
                     onClick={checkAPIKey}
                 >
                     {isLoading ? "Checking..." : isValid ? "Valid" : "Check"}
