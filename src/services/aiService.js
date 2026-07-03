@@ -14,8 +14,8 @@ export async function getAIResponse({
   console.log("profile ", userProfile, "history", userHistory);
   console.timeEnd("Dexie");
 
-  const APIKey = import.meta.env.VITE_GEMINI_APIKEY || userProfile.APIKey;
-
+  const APIKey = userProfile.APIKey;
+  console.log("APIKey: ", APIKey);
   const systemPrompt = `You are an expert fitness coach.
 
 Your task is to generate a personalized workout plan using the user’s profile, recent workout history, workout duration, workout type, and focus area.

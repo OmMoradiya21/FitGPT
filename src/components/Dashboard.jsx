@@ -10,7 +10,7 @@ export const Dashboard = ({ isNew, setIsNew }) => {
   const [aiResponse, setAIResponse] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [profile, setProfile] = useState(null);
+  const [profile, setProfile] = useState(null); // use profile.name
   const [history, setHistory] = useState([]);
   const [expandedHistoryWorkoutIds, setExpandedHistoryWorkoutIds] = useState(new Set());
   const [showHistorySection, setShowHistorySection] = useState(false);
