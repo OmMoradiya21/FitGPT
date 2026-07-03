@@ -57,6 +57,7 @@ label {
 
 input[type="text"],
 input[type="number"],
+input[type="password"],
 select {
   background: rgba(17, 24, 39, 0.8);
   border: 1px solid var(--border);
@@ -72,6 +73,7 @@ select {
 
 input[type="text"]:focus,
 input[type="number"]:focus,
+input[type="password"]:focus,
 select:focus {
   outline: none;
   border-color: var(--accent);
@@ -1166,4 +1168,78 @@ button:disabled {
   color: var(--text);
   font-style: italic;
 }
+
+/* API Key Widget Styles */
+.api-key-widget {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: 100%;
+  margin-top: 0.25rem;
+}
+
+.api-key-input-row {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  width: 100%;
+}
+
+.api-key-input-row input {
+  flex: 1;
+}
+
+.btn-api-check {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-h);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.75rem 1.25rem;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+  height: 46px; /* Match height of input */
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-api-check:hover:not(:disabled) {
+  background: rgba(6, 182, 212, 0.1);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.btn-api-check:disabled {
+  background: rgba(16, 185, 129, 0.15);
+  color: var(--success);
+  border-color: var(--success);
+  cursor: default;
+  opacity: 0.9;
+}
+
+.api-key-status {
+  font-size: 0.85rem;
+  font-weight: 500;
+  margin-top: 0.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.api-key-status.status-success {
+  color: var(--success);
+}
+
+.api-key-status.status-warning {
+  color: #fbbf24;
+}
+
+.api-key-status.status-error {
+  color: var(--error);
+}
+
 

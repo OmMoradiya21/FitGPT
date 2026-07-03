@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { db } from "../config/db.js";
+import CheckAPIButton from "./CheckAPIButton.jsx";
 
 export const OnBoarding = ({ isNew, setIsNew }) => {
   const [name, setName] = useState("");
@@ -220,14 +221,17 @@ export const OnBoarding = ({ isNew, setIsNew }) => {
 
             <div className="form-group full-width">
               <label htmlFor="APIKey">API Key</label>
-              <input
-                type="text"
-                id="APIKey"
-                name="APIKey"
-                value={APIKey}
-                onChange={(e) => setAPIKey(e.target.value)}
-                required
-              />
+              <CheckAPIButton APIKey={APIKey}>
+                <input
+                  type="password"
+                  id="APIKey"
+                  name="APIKey"
+                  value={APIKey}
+                  onChange={(e) => setAPIKey(e.target.value)}
+                  autoComplete="off"
+                  required
+                />
+              </CheckAPIButton>
               <p className="onboarding-footer-text">
                 Don't have an API Key?{" "}
                 <a href="https://platform.openai.com/account/api-keys" target="_blank" rel="noopener noreferrer">
