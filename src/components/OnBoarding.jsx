@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { db } from "../config/db.js";
+import CheckAPIButton from "./CheckAPIButton.jsx";
 
 export const OnBoarding = ({ isNew, setIsNew }) => {
   const [name, setName] = useState("");
@@ -73,7 +74,7 @@ export const OnBoarding = ({ isNew, setIsNew }) => {
             </ul>
           </div>
           <div>
-            <p style={{ margin: 0, fontSize: "0.85rem", color: "var(--accent)" }}>Powered by Gemini 2.0</p>
+            <p style={{ margin: 0, fontSize: "0.85rem", color: "var(--accent)" }}>Powered by Gemini 2.5 Flash</p>
           </div>
         </div>
         <div className="onboarding-form-panel">
@@ -220,17 +221,20 @@ export const OnBoarding = ({ isNew, setIsNew }) => {
 
             <div className="form-group full-width">
               <label htmlFor="APIKey">API Key</label>
-              <input
-                type="text"
-                id="APIKey"
-                name="APIKey"
-                value={APIKey}
-                onChange={(e) => setAPIKey(e.target.value)}
-                required
-              />
+              <CheckAPIButton APIKey={APIKey}>
+                <input
+                  type="password"
+                  id="APIKey"
+                  name="APIKey"
+                  value={APIKey}
+                  onChange={(e) => setAPIKey(e.target.value)}
+                  autoComplete="off"
+                  required
+                />
+              </CheckAPIButton>
               <p className="onboarding-footer-text">
                 Don't have an API Key?{" "}
-                <a href="https://platform.openai.com/account/api-keys" target="_blank" rel="noopener noreferrer">
+                <a href="https://aistudio.google.com/api-keys" target="_blank" rel="noopener noreferrer">
                   Get one here
                 </a>
               </p>
@@ -241,7 +245,7 @@ export const OnBoarding = ({ isNew, setIsNew }) => {
                 {isNew ? "Save Changes" : "Get Started"}
               </button>
               <p className="onboarding-footer-text">
-                By entering an API key, you authorize this app to make requests to OpenAI on your behalf
+                By entering an API key, you authorize this app to make requests to Google Gemini on your behalf
               </p>
             </div>
           </form>
