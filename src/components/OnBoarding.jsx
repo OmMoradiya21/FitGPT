@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { db } from "../config/db.js";
 import CheckAPIButton from "./CheckAPIButton.jsx";
 
-export const OnBoarding = ({ isNew, setIsNew }) => {
+export const OnBoarding = ({ isNew, onSuccess, onCancel }) => {
   const [name, setName] = useState("");
   const [age, setAge] = useState(0);
   const [gender, setGender] = useState("");
@@ -56,7 +56,7 @@ export const OnBoarding = ({ isNew, setIsNew }) => {
       APIKey,
       date: new Date().toISOString(),
     });
-    setIsNew(false);
+    onSuccess();
   }
 
   return (
@@ -276,8 +276,18 @@ export const OnBoarding = ({ isNew, setIsNew }) => {
                 style={{ width: "100%" }}
                 disabled={!isAPIValid}
               >
-                {isNew ? "Save Changes" : "Get Started"}
+                {isNew ? "Get Started" : "Save Changes"}
               </button>
+              {!isNew && (
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  style={{ width: "100%", marginTop: "0.75rem" }}
+                  onClick={onCancel}
+                >
+                  Cancel
+                </button>
+              )}
               <p className="onboarding-footer-text">
                 By entering an API key, you authorize this app to make requests
                 to Google Gemini on your behalf

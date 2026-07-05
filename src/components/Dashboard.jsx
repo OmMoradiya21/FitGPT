@@ -3,7 +3,7 @@ import { getAIResponse } from "../services/aiService";
 import { db } from "../config/db.js";
 import WorkoutTodo from "./WorkoutTodo";
 
-export const Dashboard = ({ isNew, setIsNew }) => {
+export const Dashboard = ({ onEditProfile }) => {
   const [durationOfWorkout, setDurationOfWorkout] = useState(30);
   const [workoutType, setWorkoutType] = useState("strength");
   const [focusArea, setFocusArea] = useState("");
@@ -98,7 +98,7 @@ export const Dashboard = ({ isNew, setIsNew }) => {
           <span className="logo-icon">⚡</span>
           <span className="logo-text">FitGPT</span>
         </div>
-        <button onClick={() => setIsNew(true)} className="btn btn-secondary">
+        <button onClick={onEditProfile} className="btn btn-secondary">
           Edit Profile
         </button>
       </header>

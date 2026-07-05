@@ -5,26 +5,23 @@ import { Dashboard } from './components/Dashboard';
 import { db } from './config/db';
 
 function App() {
-  const [isNew, setIsNew] = useState(null);
+  const [hasProfile, setHasProfile] = useState(null);
+  const [isEditing, setIsEditing] = useState(false);
 
   useEffect(() => {
     async function checkProfile() {
       try {
         const lastProfile = await db.profile.toCollection().last();
-        if (lastProfile) {
-          setIsNew(false);
-        } else {
-          setIsNew(true);
-        }
+        setHasProfile(!!lastProfile);
       } catch (error) {
         console.error("Failed to check profile:", error);
-        setIsNew(true);
+        setHasProfile(false);
       }
     }
     checkProfile();
   }, []);
 
-  if (isNew === null) {
+  if (hasProfile === null) {
     return (
       <div className="loading-container" style={{ minHeight: '100vh', justifyContent: 'center' }}>
         <div className="spinner"></div>
@@ -34,10 +31,22 @@ function App() {
 
   return (
     <>
-      { isNew ? <OnBoarding isNew={isNew} setIsNew={setIsNew} /> : null}
-      { !isNew ? <Dashboard isNew={isNew} setIsNew={setIsNew} /> : null}
+      {!hasProfile ? (
+        <OnBoarding isNew={true} onSuccess={() => setHasProfile(true)} />
+      ) : isEditing ? (
+        <OnBoarding 
+          isNew={false} 
+          onSuccess={() => {
+            setHasProfile(true);
+            setIsEditing(false);
+          }} 
+          onCancel={() => setIsEditing(false)} 
+        />
+      ) : (
+        <Dashboard onEditProfile={() => setIsEditing(true)} />
+      )}
     </>
-  )
+  );
 }
 
 export default App
