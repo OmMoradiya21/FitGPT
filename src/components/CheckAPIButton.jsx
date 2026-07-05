@@ -1,14 +1,13 @@
 import { useState } from "react"
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
-const CheckAPIButton = ({ APIKey, children }) => {
-    const [isValid, setIsValid] = useState(false);
+const CheckAPIButton = ({ APIKey, children, isAPIValid, setIsAPIValid }) => {
     const [message, SetMessage] = useState('');
     const [isLoading, setIsLoading] = useState(false);
 
     const checkAPIKey = async () => {
         if (!APIKey || APIKey.trim() === '') {
-            setIsValid(false);
+            setIsAPIValid(false);
             SetMessage("⚠️ Please enter an API key first");
             return;
         }
@@ -25,13 +24,13 @@ const CheckAPIButton = ({ APIKey, children }) => {
 
             if (result.response.text()) {
                 SetMessage("✓ Your API Key is Valid");
-                setIsValid(true);
+                setIsAPIValid(true);
             } else {
-                setIsValid(false);
+                setIsAPIValid(false);
                 SetMessage("Somthing is Wrong");
             }
         } catch (error) {
-            setIsValid(false);
+            setIsAPIValid(false);
             SetMessage("❌ Invalid API key");
             console.log(error.message);
         } finally {
@@ -49,11 +48,11 @@ const CheckAPIButton = ({ APIKey, children }) => {
                     disabled={isLoading} 
                     onClick={checkAPIKey}
                 >
-                    {isLoading ? "Checking..." : isValid ? "Valid" : "Check"}
+                    {isLoading ? "Checking..." : isAPIValid ? "Valid" : "Check"}
                 </button>
             </div>
             {message && (
-                <div className={`api-key-status ${isValid ? 'status-success' : message.startsWith('⚠️') ? 'status-warning' : 'status-error'}`}>
+                <div className={`api-key-status ${isAPIValid ? 'status-success' : message.startsWith('⚠️') ? 'status-warning' : 'status-error'}`}>
                     {message}
                 </div>
             )}

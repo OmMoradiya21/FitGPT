@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { db } from "../config/db.js";
 import CheckAPIButton from "./CheckAPIButton.jsx";
 
@@ -14,6 +14,7 @@ export const OnBoarding = ({ isNew, setIsNew }) => {
   const [fitnessLevel, setFitnessLevel] = useState("");
   const [injuries, setInjuries] = useState("");
   const [APIKey, setAPIKey] = useState("");
+  const [ isAPIValid, setIsAPIValid ] = useState(false);
 
   useEffect(() => {
     async function fetchProfile() {
@@ -31,6 +32,9 @@ export const OnBoarding = ({ isNew, setIsNew }) => {
         setFitnessLevel(profile.fitnessLevel);
         setInjuries(profile.injuries);
         setAPIKey(profile.APIKey);
+        if (profile.APIKey) {
+          setIsAPIValid(true);
+        }
       }
     }
     fetchProfile();
@@ -65,7 +69,10 @@ export const OnBoarding = ({ isNew, setIsNew }) => {
               <span className="logo-text">FitGPT</span>
             </div>
             <h2>Unlock Your Peak Potential</h2>
-            <p>FitGPT uses advanced AI to build personalized, safe, and effective training programs tailored specifically for you.</p>
+            <p>
+              FitGPT uses advanced AI to build personalized, safe, and effective
+              training programs tailored specifically for you.
+            </p>
             <ul className="hero-benefits">
               <li>Custom AI-generated workouts</li>
               <li>Adapts to your recent history</li>
@@ -74,11 +81,17 @@ export const OnBoarding = ({ isNew, setIsNew }) => {
             </ul>
           </div>
           <div>
-            <p style={{ margin: 0, fontSize: "0.85rem", color: "var(--accent)" }}>Powered by Gemini 2.5 Flash</p>
+            <p
+              style={{ margin: 0, fontSize: "0.85rem", color: "var(--accent)" }}
+            >
+              Powered by Gemini 2.5 Flash
+            </p>
           </div>
         </div>
         <div className="onboarding-form-panel">
-          <h2 className="form-title">{isNew ? "Create Your Profile" : "Edit Your Profile"}</h2>
+          <h2 className="form-title">
+            {isNew ? "Create Your Profile" : "Edit Your Profile"}
+          </h2>
           <form onSubmit={onboardingFormHandler} className="form-grid">
             <div className="form-group">
               <label htmlFor="name">Name</label>
@@ -221,31 +234,53 @@ export const OnBoarding = ({ isNew, setIsNew }) => {
 
             <div className="form-group full-width">
               <label htmlFor="APIKey">API Key</label>
-              <CheckAPIButton APIKey={APIKey}>
+              <CheckAPIButton
+                APIKey={APIKey}
+                isAPIValid={isAPIValid}
+                setIsAPIValid={setIsAPIValid}
+              >
                 <input
                   type="password"
                   id="APIKey"
                   name="APIKey"
                   value={APIKey}
-                  onChange={(e) => setAPIKey(e.target.value)}
+                  onChange={(e) => {
+                    setAPIKey(e.target.value);
+                    if (e.target.value !== APIKey) {
+                      setIsAPIValid(false);
+                    }
+                  }}
                   autoComplete="off"
                   required
                 />
               </CheckAPIButton>
               <p className="onboarding-footer-text">
                 Don't have an API Key?{" "}
-                <a href="https://aistudio.google.com/api-keys" target="_blank" rel="noopener noreferrer">
+                <a
+                  href="https://aistudio.google.com/api-keys"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
                   Get one here
                 </a>
               </p>
             </div>
 
-            <div className="form-group full-width" style={{ marginTop: "1rem" }}>
-              <button type="submit" className="btn btn-primary" style={{ width: "100%" }}>
+            <div
+              className="form-group full-width"
+              style={{ marginTop: "1rem" }}
+            >
+              <button
+                type="submit"
+                className="btn btn-primary"
+                style={{ width: "100%" }}
+                disabled={!isAPIValid}
+              >
                 {isNew ? "Save Changes" : "Get Started"}
               </button>
               <p className="onboarding-footer-text">
-                By entering an API key, you authorize this app to make requests to Google Gemini on your behalf
+                By entering an API key, you authorize this app to make requests
+                to Google Gemini on your behalf
               </p>
             </div>
           </form>
