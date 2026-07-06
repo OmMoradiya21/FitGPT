@@ -7,6 +7,7 @@ export const Dashboard = ({ onEditProfile }) => {
   const [durationOfWorkout, setDurationOfWorkout] = useState(30);
   const [workoutType, setWorkoutType] = useState("strength");
   const [focusArea, setFocusArea] = useState("");
+  const [workoutVanue, setWorkoutVanue] = useState("Gym");
   const [aiResponse, setAIResponse] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -79,6 +80,7 @@ export const Dashboard = ({ onEditProfile }) => {
         durationOfWorkout,
         workoutType,
         focusArea,
+        workoutVanue
       });
       console.timeEnd("response");
 
@@ -113,6 +115,16 @@ export const Dashboard = ({ onEditProfile }) => {
               Customize your workout details and let Gemini design your training plan.
             </p>
             <form onSubmit={generateWorkoutPlan}>
+
+              <div className="form-group">
+                <label htmlFor="WorkoutVanue">Workout Vanue</label>
+                <select name="WorkoutVanue" id="WorkoutVanue" value={workoutVanue} onChange={(e)=>setWorkoutVanue(e.target.value)}>
+                  <option value="Gym">Gym</option>
+                  <option value="Home">Home</option>
+                  <option value="Outdoor/Open Place">Outdoor/Open Place</option>
+                </select>
+              </div>
+
               <div className="form-group">
                 <label htmlFor="durationOfWorkout">Duration (minutes)</label>
                 <input
@@ -127,6 +139,7 @@ export const Dashboard = ({ onEditProfile }) => {
                   onChange={(e) => setDurationOfWorkout(e.target.value)}
                 />
               </div>
+
 
               <div className="form-group">
                 <label htmlFor="workoutType">Workout Type</label>

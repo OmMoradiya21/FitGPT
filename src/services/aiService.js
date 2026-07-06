@@ -5,6 +5,7 @@ export async function getAIResponse({
   durationOfWorkout,
   workoutType,
   focusArea,
+  workoutVanue
 }) {
   console.time("Dexie");
   const userProfile = (await db.profile.toCollection().last()) || {};
@@ -39,6 +40,9 @@ ${JSON.stringify(userProfile, null, 2)}
 Recent Workout History:
 ${JSON.stringify(userHistory, null, 2)}
 
+Workout Vanue:
+${workoutVanue}
+
 Requested Duration (minutes):
 ${durationOfWorkout}
 
@@ -60,6 +64,7 @@ Return JSON in this exact format:
 }
 ]
 while providing output ensures:
+    Workout Vanue
     Session Length
     Goal-Based Programming
     Workout Split
