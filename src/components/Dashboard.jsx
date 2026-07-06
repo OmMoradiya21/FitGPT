@@ -5,7 +5,7 @@ import WorkoutTodo from "./WorkoutTodo";
 
 export const Dashboard = ({ onEditProfile }) => {
   const [durationOfWorkout, setDurationOfWorkout] = useState(30);
-  const [workoutType, setWorkoutType] = useState("strength");
+  const [workoutType, setWorkoutType] = useState("");
   const [focusArea, setFocusArea] = useState("");
   const [workoutVanue, setWorkoutVanue] = useState("Gym");
   const [aiResponse, setAIResponse] = useState(null);
@@ -13,7 +13,9 @@ export const Dashboard = ({ onEditProfile }) => {
   const [error, setError] = useState(null);
   const [profile, setProfile] = useState(null); // use profile.name
   const [history, setHistory] = useState([]);
-  const [expandedHistoryWorkoutIds, setExpandedHistoryWorkoutIds] = useState(new Set());
+  const [expandedHistoryWorkoutIds, setExpandedHistoryWorkoutIds] = useState(
+    new Set(),
+  );
   const [showHistorySection, setShowHistorySection] = useState(false);
 
   const toggleHistoryExpand = (id) => {
@@ -30,7 +32,11 @@ export const Dashboard = ({ onEditProfile }) => {
 
   const fetchHistory = async () => {
     try {
-      const pastWorkouts = await db.history.orderBy("id").reverse().limit(10).toArray();
+      const pastWorkouts = await db.history
+        .orderBy("id")
+        .reverse()
+        .limit(10)
+        .toArray();
       setHistory(pastWorkouts);
     } catch (e) {
       console.error("Failed to fetch history:", e);
@@ -59,7 +65,7 @@ export const Dashboard = ({ onEditProfile }) => {
         workoutType: workoutType,
         focusArea: focusArea,
         exercises: ratedWorkout,
-        review: review
+        review: review,
       });
       setAIResponse(null);
       fetchHistory();
@@ -80,7 +86,7 @@ export const Dashboard = ({ onEditProfile }) => {
         durationOfWorkout,
         workoutType,
         focusArea,
-        workoutVanue
+        workoutVanue,
       });
       console.timeEnd("response");
 
@@ -108,17 +114,27 @@ export const Dashboard = ({ onEditProfile }) => {
       <main className="dashboard-main">
         {/* Sidebar */}
         <aside className="dashboard-sidebar">
-
           <div className="glass-card generator-card">
             <h3>Generate Workout</h3>
-            <p style={{ fontSize: "0.85rem", color: "var(--text)", marginBottom: "1.25rem" }}>
-              Customize your workout details and let Gemini design your training plan.
+            <p
+              style={{
+                fontSize: "0.85rem",
+                color: "var(--text)",
+                marginBottom: "1.25rem",
+              }}
+            >
+              Customize your workout details and let Gemini design your training
+              plan.
             </p>
             <form onSubmit={generateWorkoutPlan}>
-
               <div className="form-group">
                 <label htmlFor="WorkoutVanue">Workout Vanue</label>
-                <select name="WorkoutVanue" id="WorkoutVanue" value={workoutVanue} onChange={(e)=>setWorkoutVanue(e.target.value)}>
+                <select
+                  name="WorkoutVanue"
+                  id="WorkoutVanue"
+                  value={workoutVanue}
+                  onChange={(e) => setWorkoutVanue(e.target.value)}
+                >
                   <option value="Gym">Gym</option>
                   <option value="Home">Home</option>
                   <option value="Outdoor/Open Place">Outdoor/Open Place</option>
@@ -132,14 +148,13 @@ export const Dashboard = ({ onEditProfile }) => {
                   id="durationOfWorkout"
                   name="durationOfWorkout"
                   required
-                  min="15"
-                  max="60"
-                  step="15"
+                  min="10"
+                  max="180"
+                  step="10"
                   value={durationOfWorkout}
                   onChange={(e) => setDurationOfWorkout(e.target.value)}
                 />
               </div>
-
 
               <div className="form-group">
                 <label htmlFor="workoutType">Workout Type</label>
@@ -150,6 +165,9 @@ export const Dashboard = ({ onEditProfile }) => {
                   value={workoutType}
                   onChange={(e) => setWorkoutType(e.target.value)}
                 >
+                  <option value="" disabled>
+                    Select workout type
+                  </option>
                   <option value="cardio">Cardio</option>
                   <option value="strength">Strength</option>
                   <option value="flexibility">Flexibility</option>
@@ -170,8 +188,13 @@ export const Dashboard = ({ onEditProfile }) => {
                 />
               </div>
 
-              <button type="submit" className="btn btn-primary" id="generatePlan" disabled={loading ? true : false}>
-                {loading ? 'Generating Plan...' : 'Generate Plan'}
+              <button
+                type="submit"
+                className="btn btn-primary"
+                id="generatePlan"
+                disabled={loading ? true : false}
+              >
+                {loading ? "Generating Plan..." : "Generate Plan"}
               </button>
             </form>
           </div>
@@ -188,8 +211,18 @@ export const Dashboard = ({ onEditProfile }) => {
           {loading && (
             <div className="glass-card loading-container">
               <div className="spinner"></div>
-              <div className="loading-text">Gemini is crafting your personalized workout...</div>
-              <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: "0.75rem", marginTop: "1rem" }}>
+              <div className="loading-text">
+                Gemini is crafting your personalized workout...
+              </div>
+              <div
+                style={{
+                  width: "100%",
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "0.75rem",
+                  marginTop: "1rem",
+                }}
+              >
                 <div className="skeleton-title"></div>
                 <div className="skeleton-text" style={{ width: "100%" }}></div>
                 <div className="skeleton-text" style={{ width: "85%" }}></div>
@@ -203,61 +236,113 @@ export const Dashboard = ({ onEditProfile }) => {
               <div className="empty-plan-state">
                 <div className="empty-plan-icon">💪</div>
                 <h3>Ready to train?</h3>
-                <p>Fill out the workout parameters on the left and click "Generate Plan" to get your customized routine.</p>
+                <p>
+                  Fill out the workout parameters on the left and click
+                  "Generate Plan" to get your customized routine.
+                </p>
               </div>
 
               {history.length > 0 && (
                 <div className="history-section">
-                  <div 
-                    className="history-section-header" 
+                  <div
+                    className="history-section-header"
                     onClick={() => setShowHistorySection(!showHistorySection)}
-                    style={{ 
-                      cursor: "pointer", 
-                      display: "flex", 
-                      alignItems: "center", 
-                      justifyContent: "space-between", 
+                    style={{
+                      cursor: "pointer",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
                       userSelect: "none",
                       borderBottom: "1px solid var(--border)",
-                      paddingBottom: "0.5rem"
+                      paddingBottom: "0.5rem",
                     }}
                   >
-                    <h3 className="history-title" style={{ margin: 0 }}>Recent Workouts</h3>
-                    <span className="history-section-toggle" style={{ color: "var(--accent)", fontWeight: "bold", fontSize: "0.9rem" }}>
+                    <h3 className="history-title" style={{ margin: 0 }}>
+                      Recent Workouts
+                    </h3>
+                    <span
+                      className="history-section-toggle"
+                      style={{
+                        color: "var(--accent)",
+                        fontWeight: "bold",
+                        fontSize: "0.9rem",
+                      }}
+                    >
                       {showHistorySection ? "Hide History ▲" : "Show History ▼"}
                     </span>
                   </div>
 
                   {showHistorySection && (
-                    <div className="history-card-list" style={{ marginTop: "1rem" }}>
+                    <div
+                      className="history-card-list"
+                      style={{ marginTop: "1rem" }}
+                    >
                       {history.map((log) => {
-                        const isExpanded = expandedHistoryWorkoutIds.has(log.id);
+                        const isExpanded = expandedHistoryWorkoutIds.has(
+                          log.id,
+                        );
 
                         return (
-                          <div key={log.id} className="glass-card history-item-card">
-                            <div 
-                              className="history-header" 
+                          <div
+                            key={log.id}
+                            className="glass-card history-item-card"
+                          >
+                            <div
+                              className="history-header"
                               onClick={() => toggleHistoryExpand(log.id)}
                               style={{ cursor: "pointer", userSelect: "none" }}
                             >
                               <span className="history-date">
-                                📅 {new Date(log.date).toLocaleDateString(undefined, {
-                                  weekday: 'short',
-                                  year: 'numeric',
-                                  month: 'short',
-                                  day: 'numeric',
-                                  hour: '2-digit',
-                                  minute: '2-digit'
-                                })}
+                                📅{" "}
+                                {new Date(log.date).toLocaleDateString(
+                                  undefined,
+                                  {
+                                    weekday: "short",
+                                    year: "numeric",
+                                    month: "short",
+                                    day: "numeric",
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                  },
+                                )}
                               </span>
-                              <div className="history-summary" style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
-                                <span className="plan-tag tag-duration">⏱️ {log.duration} mins</span>
-                                <span className="plan-tag tag-difficulty" style={{ textTransform: 'capitalize' }}>🔥 {log.workoutType}</span>
+                              <div
+                                className="history-summary"
+                                style={{
+                                  display: "flex",
+                                  alignItems: "center",
+                                  gap: "0.75rem",
+                                }}
+                              >
+                                <span className="plan-tag tag-duration">
+                                  ⏱️ {log.duration} mins
+                                </span>
+                                <span
+                                  className="plan-tag tag-difficulty"
+                                  style={{ textTransform: "capitalize" }}
+                                >
+                                  🔥 {log.workoutType}
+                                </span>
                                 {log.focusArea && (
-                                  <span className="plan-tag" style={{ background: "rgba(255,255,255,0.05)", color: "var(--text-h)", border: "1px solid var(--border)" }}>
+                                  <span
+                                    className="plan-tag"
+                                    style={{
+                                      background: "rgba(255,255,255,0.05)",
+                                      color: "var(--text-h)",
+                                      border: "1px solid var(--border)",
+                                    }}
+                                  >
                                     🎯 {log.focusArea}
                                   </span>
                                 )}
-                                <span className="history-expand-indicator" style={{ color: "var(--accent)", fontWeight: "bold", marginLeft: "0.5rem" }}>
+                                <span
+                                  className="history-expand-indicator"
+                                  style={{
+                                    color: "var(--accent)",
+                                    fontWeight: "bold",
+                                    marginLeft: "0.5rem",
+                                  }}
+                                >
                                   {isExpanded ? "▲" : "▼"}
                                 </span>
                               </div>
@@ -267,13 +352,22 @@ export const Dashboard = ({ onEditProfile }) => {
                               <>
                                 <div className="history-exercises">
                                   {log.exercises.map((ex, idx) => (
-                                    <div key={idx} className="history-exercise-row">
+                                    <div
+                                      key={idx}
+                                      className="history-exercise-row"
+                                    >
                                       <span className="history-exercise-name">
                                         {ex.name} ({ex.sets}x{ex.reps})
                                       </span>
                                       {ex.feedback && (
-                                        <span className={`history-exercise-feedback feedback-${ex.feedback}`}>
-                                          {ex.feedback === "good" ? "😊 Good" : ex.feedback === "average" ? "😐 Medium" : "🥵 Hard"}
+                                        <span
+                                          className={`history-exercise-feedback feedback-${ex.feedback}`}
+                                        >
+                                          {ex.feedback === "good"
+                                            ? "😊 Good"
+                                            : ex.feedback === "average"
+                                              ? "😐 Medium"
+                                              : "🥵 Hard"}
                                         </span>
                                       )}
                                     </div>

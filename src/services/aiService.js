@@ -23,7 +23,7 @@ Your task is to generate a personalized workout plan using the user’s profile,
 
 Rules:
 
-1. Consider the user’s age, weight, height, gender, fitness level, goal, activity level, injuries, and weekly commitment.
+1. Consider the user’s age, weight, height(cm), gender, fitness level, goal, activity level, injuries, and weekly commitment.
 2. Analyze the last 10 workouts to avoid excessive repetition and to ensure proper recovery.
 3. If recent workouts were rated as difficult, reduce volume or intensity appropriately.
 4. If recent workouts were easy, gradually increase difficulty.

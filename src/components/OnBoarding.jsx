@@ -4,17 +4,17 @@ import CheckAPIButton from "./CheckAPIButton.jsx";
 
 export const OnBoarding = ({ isNew, onSuccess, onCancel }) => {
   const [name, setName] = useState("");
-  const [age, setAge] = useState(0);
+  const [age, setAge] = useState("");
   const [gender, setGender] = useState("");
-  const [weight, setWeight] = useState(0);
-  const [height, setHeight] = useState(0);
+  const [weight, setWeight] = useState("");
+  const [height, setHeight] = useState("");
   const [activityLevel, setActivityLevel] = useState("");
   const [goal, setGoal] = useState("");
   const [weeklyCommitment, setWeeklyCommitment] = useState("");
   const [fitnessLevel, setFitnessLevel] = useState("");
-  const [injuries, setInjuries] = useState("");
+  const [injuries, setInjuries] = useState("No");
   const [APIKey, setAPIKey] = useState("");
-  const [ isAPIValid, setIsAPIValid ] = useState(false);
+  const [isAPIValid, setIsAPIValid] = useState(false);
 
   useEffect(() => {
     async function fetchProfile() {
@@ -44,10 +44,10 @@ export const OnBoarding = ({ isNew, onSuccess, onCancel }) => {
     event.preventDefault();
     db.profile.add({
       name,
-      age,
+      age: Number(age),
       gender,
-      weight,
-      height,
+      weight: Number(weight),
+      height: Number(height),
       activityLevel,
       goal,
       weeklyCommitment,
@@ -99,9 +99,12 @@ export const OnBoarding = ({ isNew, onSuccess, onCancel }) => {
                 type="text"
                 id="name"
                 name="name"
+                placeholder="Enter your name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 required
+                minLength={2}
+                maxLength={20}
               />
             </div>
 
@@ -111,9 +114,12 @@ export const OnBoarding = ({ isNew, onSuccess, onCancel }) => {
                 type="number"
                 id="age"
                 name="age"
+                placeholder="Enter your age"
                 value={age}
                 onChange={(e) => setAge(e.target.value)}
                 required
+                min={15}
+                max={100}
               />
             </div>
 
@@ -137,9 +143,13 @@ export const OnBoarding = ({ isNew, onSuccess, onCancel }) => {
                 type="number"
                 id="weight"
                 name="weight"
+                placeholder="Enter your weight"
                 value={weight}
                 onChange={(e) => setWeight(e.target.value)}
                 required
+                min={30}
+                max={300}
+                step="0.1"
               />
             </div>
 
@@ -149,9 +159,12 @@ export const OnBoarding = ({ isNew, onSuccess, onCancel }) => {
                 type="number"
                 id="height"
                 name="height"
+                placeholder="Enter your height"
                 value={height}
                 onChange={(e) => setHeight(e.target.value)}
                 required
+                min={100}
+                max={250}
               />
             </div>
 
@@ -196,13 +209,16 @@ export const OnBoarding = ({ isNew, onSuccess, onCancel }) => {
                 onChange={(e) => setWeeklyCommitment(e.target.value)}
                 required
               >
-                <option value="1">1 day/week</option>
-                <option value="2">2 days/week</option>
-                <option value="3">3 days/week</option>
-                <option value="4">4 days/week</option>
-                <option value="5">5 days/week</option>
-                <option value="6">6 days/week</option>
+                <option value="" disabled>
+                  Select weekly commitment
+                </option>
                 <option value="7">7 days/week</option>
+                <option value="6">6 days/week</option>
+                <option value="5">5 days/week</option>
+                <option value="4">4 days/week</option>
+                <option value="3">3 days/week</option>
+                <option value="2">2 days/week</option>
+                <option value="1">1 day/week</option>
               </select>
             </div>
 
