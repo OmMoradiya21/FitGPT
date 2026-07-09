@@ -1,7 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { getAIResponse } from "../services/aiService";
 import { db } from "../config/db.js";
 import WorkoutTodo from "./WorkoutTodo";
+import { exportDatabase, importDatabase } from "../utils/dbBackup.js";
 
 export const Dashboard = ({ onEditProfile }) => {
   const [durationOfWorkout, setDurationOfWorkout] = useState(30);
@@ -12,6 +13,23 @@ export const Dashboard = ({ onEditProfile }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [profile, setProfile] = useState(null); // use profile.name
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const dropdownRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsMenuOpen(false);
+      }
+    };
+    if (isMenuOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isMenuOpen]);
+
   const [history, setHistory] = useState([]);
   const [expandedHistoryWorkoutIds, setExpandedHistoryWorkoutIds] = useState(
     new Set(),
@@ -106,9 +124,56 @@ export const Dashboard = ({ onEditProfile }) => {
           <span className="logo-icon">⚡</span>
           <span className="logo-text">FitGPT</span>
         </div>
-        <button onClick={onEditProfile} className="btn btn-secondary">
-          Edit Profile
-        </button>
+
+        <div className="header-actions">
+          <button onClick={onEditProfile} className="btn btn-secondary">
+            Edit Profile
+          </button>
+
+          <div className="dropdown-container" ref={dropdownRef}>
+            <button
+              onClick={() => setIsMenuOpen((prev) => !prev)}
+              className="btn-more-trigger"
+              aria-label="More options"
+            >
+              ⋮
+            </button>
+            {isMenuOpen && (
+              <div className="dropdown-menu">
+                <input
+                  id="import-file"
+                  type="file"
+                  accept=".dexie"
+                  style={{ display: "none" }}
+                  onChange={(e) => {
+                    const file = e.target.files[0];
+                    if (file) {
+                      importDatabase(file);
+                    }
+                  }}
+                />
+                <button
+                  onClick={() => {
+                    document.getElementById("import-file").click();
+                    setIsMenuOpen(false);
+                  }}
+                  className="dropdown-item"
+                >
+                  Import Data
+                </button>
+                <button
+                  onClick={() => {
+                    exportDatabase();
+                    setIsMenuOpen(false);
+                  }}
+                  className="dropdown-item"
+                >
+                  Export Data
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
       </header>
 
       <main className="dashboard-main">
