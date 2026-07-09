@@ -24,21 +24,28 @@ export async function importDatabase(file) {
     alert("Please select a valid .dexie backup file.");
     return;
   }
-  const importedDB = await importDB(file);
-  const expectedTables = ["profile", "history"];
-  const hasAllTables = expectedTables.every((table) =>
-    importedDB.tables.some((t) => t.name === table),
-  );
 
-  if (!hasAllTables) {
+  try {
+    const importedDB = await importDB(file);
+    const expectedTables = ["profile", "history"];
+    const hasAllTables = expectedTables.every((table) =>
+      importedDB.tables.some((t) => t.name === table),
+    );
+
+    if (!hasAllTables) {
+      importedDB.close();
+      alert("This backup is not compatible with this application.");
+      return;
+    }
     importedDB.close();
-    alert("This backup is not compatible with this application.");
-    return;
+
+    await db.delete();
+    await importDB(file);
+
+    alert("Data imported successfully! Click OK to refresh the application.");
+    window.location.reload();
+  } catch (error) {
+    console.error("Failed to import database:", error);
+    alert("Failed to import database: " + error.message);
   }
-  importedDB.close();
-
-  await db.delete();
-  await importDB(file);
-
-  window.location.reload();
 }
