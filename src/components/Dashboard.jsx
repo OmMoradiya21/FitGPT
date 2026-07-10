@@ -124,7 +124,18 @@ export const Dashboard = ({ onEditProfile }) => {
           <span className="logo-icon">⚡</span>
           <span className="logo-text">FitGPT</span>
         </div>
-
+          <input
+                  id="import-file"
+                  type="file"
+                  accept=".dexie"
+                  style={{ display: "none" }}
+                  onChange={(e) => {
+                    const file = e.target.files[0];
+                    if (file) {
+                      importDatabase(file);
+                    }
+                  }}
+                />
         <div className="header-actions">
           <button onClick={onEditProfile} className="btn btn-secondary">
             Edit Profile
@@ -140,18 +151,7 @@ export const Dashboard = ({ onEditProfile }) => {
             </button>
             {isMenuOpen && (
               <div className="dropdown-menu">
-                <input
-                  id="import-file"
-                  type="file"
-                  accept=".dexie"
-                  style={{ display: "none" }}
-                  onChange={(e) => {
-                    const file = e.target.files[0];
-                    if (file) {
-                      importDatabase(file);
-                    }
-                  }}
-                />
+                
                 <button
                   onClick={() => {
                     document.getElementById("import-file").click();

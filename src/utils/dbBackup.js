@@ -1,4 +1,4 @@
-import { exportDB, importDB } from "dexie-export-import";
+import { exportDB, importDB, peakImportFile } from "dexie-export-import";
 import { db } from "../config/db.js";
 
 export async function exportDatabase() {
@@ -14,10 +14,10 @@ export async function exportDatabase() {
 }
 
 export async function importDatabase(file) {
-  const confirm = window.confirm(
+  const confirmed = window.confirm(
     "Importing will replace all your existing data. Do you want to continue?",
   );
-  if (!confirm) {
+  if (!confirmed) {
     return;
   }
   if (!file.name.endsWith(".dexie")) {
@@ -26,26 +26,36 @@ export async function importDatabase(file) {
   }
 
   try {
-    const importedDB = await importDB(file);
+    // 1. Validate the backup file first using peakImportFile
+    const importMeta = await peakImportFile(file);
+    if (importMeta.formatName !== "dexie") {
+      alert("Invalid backup file format.");
+      return;
+    }
+
     const expectedTables = ["profile", "history"];
     const hasAllTables = expectedTables.every((table) =>
-      importedDB.tables.some((t) => t.name === table),
+      importMeta.data.tables.some((t) => t.name === table),
     );
 
     if (!hasAllTables) {
-      importedDB.close();
       alert("This backup is not compatible with this application.");
       return;
     }
+
+    // 2. If valid, close and delete the current database
+    await db.close();
+    await db.delete();
+
+    // 3. Import the backup (only once)
+    const importedDB = await importDB(file);
     importedDB.close();
 
-    await db.delete();
-    await importDB(file);
-
-    alert("Data imported successfully! Click OK to refresh the application.");
+    alert("Data imported successfully!");
     window.location.reload();
   } catch (error) {
     console.error("Failed to import database:", error);
     alert("Failed to import database: " + error.message);
   }
 }
+
