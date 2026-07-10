@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { db } from "../config/db.js";
 import CheckAPIButton from "./CheckAPIButton.jsx";
+import { importDatabase } from "../utils/dbBackup.js";
 
 export const OnBoarding = ({ isNew, onSuccess, onCancel }) => {
   const [name, setName] = useState("");
@@ -294,6 +295,32 @@ export const OnBoarding = ({ isNew, onSuccess, onCancel }) => {
               >
                 {isNew ? "Get Started" : "Save Changes"}
               </button>
+              {isNew && (
+                <>
+                  <input
+                    id="import-file"
+                    type="file"
+                    accept=".dexie"
+                    style={{ display: "none" }}
+                    onChange={(e) => {
+                      const file = e.target.files[0];
+                      if (file) {
+                        importDatabase(file);
+                      }
+                    }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      document.getElementById("import-file").click();
+                    }}
+                    className="btn btn-secondary"
+                    style={{ width: "100%", marginTop: "0.75rem" }}
+                  >
+                    Import Data
+                  </button>
+                </>
+              )}
               {!isNew && (
                 <button
                   type="button"
